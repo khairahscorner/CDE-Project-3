@@ -11,6 +11,22 @@ commands:
           event: fail
           mentions: '@airahyusuff'
           template: basic_fail_1
+      - slack/notify:
+          event: pass
+          channel: C03Q56HMW4R
+          mentions: '@airahyusuff'
+          custom: |
+            {
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "Hello, this job passed. carry on!"
+                  }
+                }
+              ]
+            }
             
 jobs:
   build_frontend:
@@ -75,7 +91,7 @@ jobs:
           command: |
             cd frontend
             npm install
-            npm audit fix --audit-level=critical --force
+            npm audit fix  --force --audit-level=critical
             npm audit --audit-level=critical
       - notify_slack
 
@@ -89,7 +105,7 @@ jobs:
           command: |
             cd backend
             npm install
-            npm audit fix --audit-level=critical --force
+            npm audit fix  --force --audit-level=critical
             npm audit --audit-level=critical
       - notify_slack
 
