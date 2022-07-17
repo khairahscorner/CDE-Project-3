@@ -29,10 +29,7 @@ Resources:
       SecurityGroups:
         - Ref: InstanceSecurityGroup
       KeyName: udacity
-      ImageId:  ami-052efd3df9dad4825
-
-Outputs:
-  BackendInstanceDNS:
-    Value: !GetAtt EC2Instance.PublicDnsName
-    Export:
-      Name: BackendInstanceDNS
+      ImageId: ami-052efd3df9dad4825
+      Tags:
+        - Key: Name
+          Value: !Sub backend-${ID}
