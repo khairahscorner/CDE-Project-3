@@ -145,7 +145,7 @@ jobs:
           command: |
             aws ec2 describe-instances --query "Reservations[*].Instances[*].PublicIpAddress" --filters "Name=tag:project, Values=udapeople" --output text >> .circleci/ansible/inventory.txt
       - persist_to_workspace:
-          root:  ~/
+          root:  ~/project
           paths:
             - .circleci/ansible/inventory.txt
       - notify_slack
@@ -178,17 +178,17 @@ jobs:
 workflows:
   default:
     jobs:
-      - build_frontend
-      - build_backend
-      - test_frontend:
-          requires: [build_frontend]
-      - test_backend:
-          requires: [build_backend]
-      - audit_frontend:
-          requires: [build_frontend]
-      - audit_backend:
-          requires: [build_backend]
-      - deploy_infra:
-          requires: [test_backend, test_frontend, audit_backend, audit_frontend]
-      - configure_infra:
-          requires: [deploy_infra]
+      # - build_frontend
+      # - build_backend
+      # - test_frontend:
+      #     requires: [build_frontend]
+      # - test_backend:
+      #     requires: [build_backend]
+      # - audit_frontend:
+      #     requires: [build_frontend]
+      # - audit_backend:
+      #     requires: [build_backend]
+      - deploy_infra
+          # requires: [test_backend, test_frontend, audit_backend, audit_frontend]
+      # - configure_infra:
+      #     requires: [deploy_infra]
