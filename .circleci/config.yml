@@ -147,7 +147,7 @@ jobs:
           root:  ~/
           paths:
             - inventory.txt
-      - destroy_environment
+      # - destroy_environment
 
 
 workflows:
