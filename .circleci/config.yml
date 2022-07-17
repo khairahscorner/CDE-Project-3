@@ -26,7 +26,30 @@ jobs:
             cd backend
             npm install
             npm run build
+  
+  test_frontend:
+    docker:
+      - image: circleci/node:16.13.1
+    steps:
+      - checkout
+      - run:
+          name: "Unit tests for frontend"
+          command: |
+            cd frontend
+            npm install
+            npm run test
 
+  test_backend:
+    docker:
+      - image: circleci/node:16.13.1
+    steps:
+      - checkout
+      - run:
+          name: "Unit tests for backend"
+          command: |
+            cd backend
+            npm install
+            npm run test
 
 
 workflows:
@@ -34,3 +57,7 @@ workflows:
     jobs:
       - build_frontend
       - build_backend
+      - test_frontend:
+          requires: [build_frontend]
+      - test_backend:
+          requires: [build_frontend, build_backend]
