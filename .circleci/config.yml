@@ -132,6 +132,7 @@ jobs:
     working_directory: ~/project
     steps:
       - checkout
+      - run: yum install -y tar gzip
       - run:
           name: Ensure backend infrastructure exist
           command: |
@@ -145,7 +146,6 @@ jobs:
           command: |
             echo "[all]" > ~/inventory.txt
             aws cloudformation list-exports --query "Exports[?Name==\`BackendInstanceDNS\`].Value" --no-paginate --output text >> .circleci/ansible/inventory.txt
-      - run: yum install -y tar gzip
       - persist_to_workspace:
           root:  ~/
           paths:
