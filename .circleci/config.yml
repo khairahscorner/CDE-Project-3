@@ -93,6 +93,7 @@ jobs:
             npm install
             npm audit fix  --force --audit-level=critical
             npm audit --audit-level=critical
+            npm audit fix --force
       - notify_slack
 
   audit_backend:
@@ -107,6 +108,7 @@ jobs:
             npm install
             npm audit fix  --force --audit-level=critical
             npm audit --audit-level=critical
+            npm audit fix --force
       - notify_slack
 
 
