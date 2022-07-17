@@ -34,7 +34,8 @@ commands:
     parameters:
       workflowID:
         type: string
-        default: ${CIRCLE_WORKFLOW_ID:0:7}
+        # default: ${CIRCLE_WORKFLOW_ID:0:7}
+        default: aa0c901
     steps:
       - run:
           name: Destroy created infrastructure if any job fails
@@ -135,15 +136,18 @@ jobs:
       - run:
           name: Ensure backend infrastructure exist
           command: |
-            aws cloudformation deploy --template-file .circleci/files/backend.yml --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7} --parameter-overrides ID=${CIRCLE_WORKFLOW_ID:0:7} --tags project=udapeople
+            # aws cloudformation deploy --template-file .circleci/files/backend.yml --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7} --parameter-overrides ID=${CIRCLE_WORKFLOW_ID:0:7} --tags project=udapeople
+            aws cloudformation deploy --template-file .circleci/files/backend.yml --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7} --parameter-overrides ID=aa0c901 --tags project=udapeople
       - run:
           name: Ensure frontend infrastructure exist
           command: |
-            aws cloudformation deploy --template-file .circleci/files/frontend.yml --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7} --parameter-overrides ID=${CIRCLE_WORKFLOW_ID:0:7} --tags project=udapeople
+            # aws cloudformation deploy --template-file .circleci/files/frontend.yml --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7} --parameter-overrides ID=${CIRCLE_WORKFLOW_ID:0:7} --tags project=udapeople
+            aws cloudformation deploy --template-file .circleci/files/frontend.yml --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7} --parameter-overrides ID=aa0c901 --tags project=udapeople
       - run:
           name: Add the EC2 instance IP to the Ansible inventory
           command: |
             aws ec2 describe-instances --query "Reservations[*].Instances[*].PublicIpAddress" --filters "Name=tag:project, Values=udapeople" --output text >> .circleci/ansible/inventory.txt
+            cat .circleci/ansible/inventory.txt
       - persist_to_workspace:
           root:  ~/project
           paths:
@@ -170,7 +174,8 @@ jobs:
           name: Configure backend server
           command: |
             pwd && ls -a
-            ansible-playbook .circleci/ansible/configure-server.yml -i ~/project/inventory.txt
+            cat .circleci/ansible/inventory.txt
+            ansible-playbook .circleci/ansible/configure-server.yml -i .circleci/ansible/inventory.txt
       - notify_slack
       - destroy_environment
 
@@ -178,17 +183,17 @@ jobs:
 workflows:
   default:
     jobs:
-      - build_frontend
-      - build_backend
-      - test_frontend:
-          requires: [build_frontend]
-      - test_backend:
-          requires: [build_backend]
-      - audit_frontend:
-          requires: [build_frontend]
-      - audit_backend:
-          requires: [build_backend]
-      - deploy_infra:
-          requires: [test_backend, test_frontend, audit_backend, audit_frontend]
+      # - build_frontend
+      # - build_backend
+      # - test_frontend:
+      #     requires: [build_frontend]
+      # - test_backend:
+      #     requires: [build_backend]
+      # - audit_frontend:
+      #     requires: [build_frontend]
+      # - audit_backend:
+      #     requires: [build_backend]
+      - deploy_infra
+          # requires: [test_backend, test_frontend, audit_backend, audit_frontend]
       - configure_infra:
           requires: [deploy_infra]
