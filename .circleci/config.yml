@@ -163,15 +163,15 @@ jobs:
       - attach_workspace:
           at: ~/
       - run:
-          name: Install dependencies
+          name: Install main dependencies
           command: |
             apk add --update tar gzip
             apk add --update openssh
             apk add --update ansible
       - run:
-          name: Configure prometheus server
+          name: Configure backend server
           command: |
-            ansible-playbook server.yml -i ~/project/inventory.txt
+            ansible-playbook .circleci/ansible/configure-server.yml -i ~/inventory.txt
 
 
 workflows:
@@ -189,3 +189,5 @@ workflows:
           requires: [build_backend]
       - deploy_infra:
           requires: [test_backend, test_frontend, audit_backend, audit_frontend]
+      - configure_infra:
+          requires: [deploy_infra]
