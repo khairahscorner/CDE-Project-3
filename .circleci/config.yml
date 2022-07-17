@@ -132,7 +132,7 @@ jobs:
     working_directory: ~/project
     steps:
       - checkout
-      -run: pwd && ls -a
+      - run: pwd && ls -a
       - run:
           name: Ensure backend infrastructure exist
           # no_output_timeout: 30m
