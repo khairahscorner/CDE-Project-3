@@ -129,9 +129,10 @@ jobs:
   deploy_infra:
     docker:
       - image: amazon/aws-cli
+    working_directory: ~/project
     steps:
       - checkout
-      - run: yum install -y tar gzip
+      -run: pwd && ls -a
       - run:
           name: Ensure backend infrastructure exist
           # no_output_timeout: 30m
@@ -145,11 +146,12 @@ jobs:
           name: Add the EC2 instance IP to the Ansible inventory
           command: |
             aws ec2 describe-instances --query "Reservations[*].Instances[*].PublicIpAddress" --filters "Name=tag:project, Values=udapeople" --output text >> .circleci/ansible/inventory.txt
+      - run: yum install -y tar gzip
       - persist_to_workspace:
           root:  ~/
           paths:
             - inventory.txt
-      # - destroy_environment
+      - destroy_environment
 
   configure_infra:
     docker:
@@ -179,15 +181,14 @@ jobs:
 workflows:
   default:
     jobs:
-      - build_frontend
-      - build_backend
-      - test_frontend:
-          requires: [build_frontend]
-      - test_backend:
-          requires: [build_backend]
-      - audit_frontend:
-          requires: [build_frontend]
-      - audit_backend:
-          requires: [build_backend]
-      - deploy_infra:
-          requires: [test_frontend, test_backend, audit_frontend, audit_backend]
+      # - build_frontend
+      # - build_backend
+      # - test_frontend:
+      #     requires: [build_frontend]
+      # - test_backend:
+      #     requires: [build_backend]
+      # - audit_frontend:
+      #     requires: [build_frontend]
+      # - audit_backend:
+      #     requires: [build_backend]
+      - deploy_infra
