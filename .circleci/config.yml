@@ -144,11 +144,10 @@ jobs:
           name: Add the EC2 instance IP to the Ansible inventory
           command: |
             aws ec2 describe-instances --query "Reservations[*].Instances[*].PublicIpAddress" --filters "Name=tag:project, Values=udapeople" --output text >> .circleci/ansible/inventory.txt
-            cp .circleci/ansible/inventory.txt inventory.txt
       - persist_to_workspace:
           root:  ~/
           paths:
-            - inventory.txt
+            - .circleci/ansible/inventory.txt
       - notify_slack
       - destroy_environment
 
@@ -160,7 +159,7 @@ jobs:
       - add_ssh_keys:
           fingerprints: ["5d:61:63:61:30:df:01:28:4a:25:aa:6f:58:1e:87:f1"]
       - attach_workspace:
-          at: ~/
+          at: ~/project
       - run:
           name: Install main dependencies
           command: |
@@ -170,7 +169,10 @@ jobs:
       - run:
           name: Configure backend server
           command: |
-            ansible-playbook .circleci/ansible/configure-server.yml -i ~/inventory.txt
+            pwd && ls -a
+            ansible-playbook .circleci/ansible/configure-server.yml -i ~/project/inventory.txt
+      - notify_slack
+      - destroy_environment
 
 
 workflows:
