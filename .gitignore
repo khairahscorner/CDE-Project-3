@@ -2,6 +2,7 @@
 *.sw[mnpcod]
 *.log
 *.tmp
+*.pem
 *.tmp.*
 log.txt
 *.sublime-project
@@ -64,7 +65,6 @@ $RECYCLE.BIN/
 .DS_Store
 Thumbs.db
 UserInterfaceState.xcuserstate
-*.pem
 node_modules
 
 .env
