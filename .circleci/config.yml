@@ -1,6 +1,16 @@
 version: 2.1
 
+orbs: 
+  slack: circleci/slack@4.10.1
+
 commands:
+  notify_slack:
+    description: Send slack notification on failure
+    steps:
+      - slack/notify:
+          event: fail
+          mentions: '@airahyusuff'
+          template: basic_fail_1
             
 jobs:
   build_frontend:
@@ -14,6 +24,7 @@ jobs:
             cd frontend
             npm install
             npm run build
+      - notify_slack
 
   build_backend:
     docker:
@@ -26,6 +37,7 @@ jobs:
             cd backend
             npm install
             npm run build
+      - notify_slack      
   
   test_frontend:
     docker:
@@ -38,6 +50,7 @@ jobs:
             cd frontend
             npm install
             npm run test
+      - notify_slack
 
   test_backend:
     docker:
@@ -50,6 +63,7 @@ jobs:
             cd backend
             npm install
             npm run test
+      - notify_slack
   
   audit_frontend:
     docker:
@@ -63,6 +77,7 @@ jobs:
             npm install
             npm audit fix --audit-level=critical --force
             npm audit --audit-level=critical
+      - notify_slack
 
   audit_backend:
     docker:
@@ -76,6 +91,7 @@ jobs:
             npm install
             npm audit fix --audit-level=critical --force
             npm audit --audit-level=critical
+      - notify_slack
 
 
 workflows:
