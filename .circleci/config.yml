@@ -145,6 +145,7 @@ jobs:
           name: Add the EC2 instance IP to the Ansible inventory
           command: |
             aws ec2 describe-instances --query "Reservations[*].Instances[*].PublicIpAddress" --filters "Name=tag:project, Values=udapeople" --output text >> .circleci/ansible/inventory.txt
+            cp .circleci/ansible/inventory.txt inventory.txt
       - persist_to_workspace:
           root:  ~/
           paths:
