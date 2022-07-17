@@ -129,7 +129,6 @@ jobs:
   deploy_infra:
     docker:
       - image: amazon/aws-cli
-    working_directory: ~/project
     steps:
       - checkout
       - run: yum install -y tar gzip
@@ -137,6 +136,7 @@ jobs:
           name: Ensure backend infrastructure exist
           command: |
             aws cloudformation deploy --template-file .circleci/files/backend.yml --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7} --parameter-overrides ID=${CIRCLE_WORKFLOW_ID:0:7} --tags project=udapeople
+            aws cloudformation describe-stack-events --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}
       - run:
           name: Ensure frontend infrastructure exist
           command: |
@@ -156,22 +156,18 @@ jobs:
   configure_infra:
     docker:
       - image: python:3.8-alpine3.15
-    working_directory: ~/project
     steps:
       - checkout
       - add_ssh_keys:
-          fingerprints: ["c4:7f:58:83:f1:c3:ec:1e:ad:dd:48:65:1e:21:d3:34"]
-      - run:
-          name: install openssh
-          command: apk add --update openssh
+          fingerprints: ["5d:61:63:61:30:df:01:28:4a:25:aa:6f:58:1e:87:f1"]
+      - attach_workspace:
+          at: ~/
       - run:
           name: Install dependencies
           command: |
-            pwd
+            apk add --update tar gzip
+            apk add --update openssh
             apk add --update ansible
-      - run: apk add --update tar gzip
-      - attach_workspace:
-          at: ~/project
       - run:
           name: Configure prometheus server
           command: |
