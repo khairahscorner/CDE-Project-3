@@ -135,18 +135,18 @@ jobs:
           name: Ensure backend infrastructure exist
           command: |
             aws cloudformation deploy \ 
-            --template-file .circleci/files/backend.yml \
-            --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
-            --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  \
-            --tags project=udapeople
+              --template-file .circleci/files/backend.yml \
+              --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  \
+              --tags project=udapeople
       - run:
           name: Ensure frontend infrastructure exist
           command: |
             aws cloudformation deploy \ 
-            --template-file .circleci/files/frontend.yml \
-            --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
-            --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  \
-            --tags project=udapeople        
+              --template-file .circleci/files/frontend.yml \
+              --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  \
+              --tags project=udapeople        
       - run:
           name: Add the EC2 instance IP to the Ansible inventory
           command: |
@@ -172,4 +172,4 @@ workflows:
       - audit_backend:
           requires: [build_backend]
       - deploy_infra:
-          requires: [build_backend, build_frontend, test_frontend, test_backend]
+          requires: [test_frontend, test_backend]
