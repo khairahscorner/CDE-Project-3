@@ -96,20 +96,20 @@ jobs:
             exit 0
       - notify_slack
 
-  audit_backend:
-    docker:
-      - image: cimg/node:16.13.1
-    steps:
-      - checkout
-      - run:
-          name: "Audit tests for backend"
-          command: |
-            cd backend
-            npm install
-            npm audit fix  --audit-level=critical --force 
-            npm audit --audit-level=critical
-            exit 0
-      - notify_slack
+  # audit_backend:
+  #   docker:
+  #     - image: cimg/node:16.13.1
+  #   steps:
+  #     - checkout
+  #     - run:
+  #         name: "Audit tests for backend"
+  #         command: |
+  #           cd backend
+  #           npm install
+  #           npm audit fix  --audit-level=critical --force 
+  #           npm audit --audit-level=critical
+  #           exit 0
+  #     - notify_slack
 
 
 workflows:
@@ -123,5 +123,5 @@ workflows:
           requires: [build_backend]
       - audit_frontend:
           requires: [build_frontend]
-      - audit_backend:
-          requires: [build_backend]
+      # - audit_backend:
+      #     requires: [build_backend]
