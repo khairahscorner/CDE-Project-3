@@ -97,7 +97,7 @@ jobs:
 
   audit_backend:
     docker:
-      - image: cimg/node:13.8.0
+      - image: cimg/node:16.13.1
     steps:
       - checkout
       - run:
