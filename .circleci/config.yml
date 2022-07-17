@@ -132,12 +132,16 @@ jobs:
     working_directory: ~/project
     steps:
       - checkout
-      - run: pwd && ls -a
+      - run:
+          command: |
+            pwd && ls -a
+            cd .circleci && ls -a
       - run:
           name: Ensure backend infrastructure exist
           # no_output_timeout: 30m
           command: |
             aws cloudformation deploy --template-file .circleci/files/backend.yml --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7} --parameter-overrides ID=${CIRCLE_WORKFLOW_ID:0:7} --tags project=udapeople  --region us-east-1
+            exit 1
       - run:
           name: Ensure frontend infrastructure exist
           command: |
