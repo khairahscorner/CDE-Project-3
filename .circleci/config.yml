@@ -91,14 +91,14 @@ jobs:
           command: |
             cd frontend
             npm install
-            npm audit --audit-level=critical
             npm audit fix --audit-level=critical --force
+            npm audit --audit-level=critical
             exit 0
       - notify_slack
 
   audit_backend:
     docker:
-      - image: cimg/node:13.8.0
+      - image: cimg/node:14.18.2
     steps:
       - checkout
       - run:
@@ -106,8 +106,8 @@ jobs:
           command: |
             cd backend
             npm install
+            npm audit fix  --audit-level=critical --force 
             npm audit --audit-level=critical
-            npm audit fix --audit-level=critical --force 
             exit 0
       - notify_slack
 
