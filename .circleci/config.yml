@@ -11,23 +11,38 @@ commands:
           event: fail
           mentions: '@airahyusuff'
           template: basic_fail_1
-      - slack/notify:
-          event: pass
-          channel: C03Q56HMW4R
-          mentions: '@airahyusuff'
-          custom: |
-            {
-              "blocks": [
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": "Hello, this job passed. carry on!"
-                  }
-                }
-              ]
-            }
-            
+      # - slack/notify:
+      #     event: pass
+      #     channel: C03Q56HMW4R
+      #     mentions: '@airahyusuff'
+      #     custom: |
+      #       {
+      #         "blocks": [
+      #           {
+      #             "type": "section",
+      #             "text": {
+      #               "type": "mrkdwn",
+      #               "text": "Hello, this job passed. carry on!"
+      #             }
+      #           }
+      #         ]
+      #       }
+
+  destroy_environment:
+    description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
+    parameters:
+      workflowID:
+        type: string
+        default: ${CIRCLE_WORKFLOW_ID:0:7}
+    steps:
+      - run:
+          name: Destroy created infrastructure if any job fails
+          when: on_fail
+          command: |
+            echo "Destroying BE + FE infrastructure with workflowID --> << parameters.workflowID >>"
+            aws cloudformation delete-stack --stack-name udapeople-backend-<< parameters.workflowID >>
+            aws cloudformation delete-stack --stack-name udapeople-frontend-<< parameters.workflowID >>
+        
 jobs:
   build_frontend:
     docker:
@@ -110,6 +125,38 @@ jobs:
             npm audit --audit-level=critical
       - notify_slack
 
+  deploy_infra:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run: yum install -y tar gzip
+      - run:
+          name: Ensure backend infrastructure exist
+          command: |
+            aws cloudformation deploy \ 
+            --template-file .circleci/files/backend.yml \
+            --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+            --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  \
+            --tags project=udapeople
+      - run:
+          name: Ensure frontend infrastructure exist
+          command: |
+            aws cloudformation deploy \ 
+            --template-file .circleci/files/frontend.yml \
+            --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
+            --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  \
+            --tags project=udapeople        
+      - run:
+          name: Add the EC2 instance IP to the Ansible inventory
+          command: |
+            aws ec2 describe-instances --query "Reservations[*].Instances[*].PublicIpAddress" --filters "Name=tag:project, Values=udapeople" --output text >> .circleci/ansible/inventory.txt
+      - persist_to_workspace:
+          root:  ~/
+          paths:
+            - inventory.txt
+      - destroy_environment
+
 
 workflows:
   default:
@@ -124,3 +171,5 @@ workflows:
           requires: [build_frontend]
       - audit_backend:
           requires: [build_backend]
+      - deploy_infra:
+          requires: [build_backend, build_frontend, test_frontend, test_backend]

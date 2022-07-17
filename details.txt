@@ -7,3 +7,9 @@ default_db_name= postgres
 db-endpoint= udapeopleairah.cplgvre9vcem.us-east-1.rds.amazonaws.com
 
 accountID = 904378481630
+
+set output timeout for jobs that might take longer
+e.g
+-run:
+    name: 
+    no_output_timeout: 30m
