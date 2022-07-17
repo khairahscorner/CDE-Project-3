@@ -50,6 +50,30 @@ jobs:
             cd backend
             npm install
             npm run test
+  
+  scan_frontend:
+    docker:
+      - image: cimg/node:16.13.1
+    steps:
+      - checkout
+      - run:
+          name: "Audit tests for frontend"
+          command: |
+            cd frontend
+            npm install
+            npm audit --audit-level=critical
+
+  scan_backend:
+    docker:
+      - image: cimg/node:16.13.1
+    steps:
+      - checkout
+      - run:
+          name: "Audit tests for backend"
+          command: |
+            cd backend
+            npm install
+            npm audit --audit-level=critical
 
 
 workflows:
@@ -60,4 +84,8 @@ workflows:
       - test_frontend:
           requires: [build_frontend]
       - test_backend:
+          requires: [build_backend]
+      - audit_frontend:
+          requires: [build_frontend]
+      - audit_backend:
           requires: [build_backend]
