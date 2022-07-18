@@ -41,7 +41,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-        key: frontend-build
+          key: frontend-build
       - run:
           name: "Compile frontend"
           command: |
@@ -60,7 +60,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-        key: backend-build
+          key: backend-build
       - run:
           name: "Compile backend"
           command: |
@@ -78,7 +78,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-        key: frontend-build
+          key: frontend-build
       - run:
           name: "Unit tests for frontend"
           command: |
@@ -96,7 +96,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-        key: backend-build
+          key: backend-build
       - run:
           name: "Unit tests for backend"
           command: |
@@ -114,7 +114,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-        key: frontend-build
+          key: frontend-build
       - run:
           name: "Audit tests for frontend"
           command: |
@@ -130,7 +130,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-        key: backend-build
+          key: backend-build
       - run:
           name: " tests for backend"
           command: |
