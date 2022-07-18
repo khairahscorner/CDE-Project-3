@@ -242,8 +242,13 @@ jobs:
       - run:
           name: Install Ansible
           command: |
-            yum install epel-release
-            yum install -y ansible
+            if [ $(python3 -m pip -V) -eq 0 ]
+            then
+              python3 -m pip install --user ansible
+            else
+              echo "this did not work"
+              exit 0
+            fi
       - run:
           name: Confirm installations
           command: |
@@ -254,6 +259,11 @@ jobs:
       # - run:
       #     name: Get backend url
       #     command: |
+      #       BACKEND_IP=$(aws ec2 describe-instances --query "Reservations[*].Instances[*].PublicIpAddress" --filters "Name=tag:project, Values=udapeople" --output text)
+      #       API_URL="http://${BACKEND_IP}:3030"
+      #       echo "API_URL = ${API_URL}"
+      #       echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
+      #       cat frontend/.env
 
       - notify_slack
 
