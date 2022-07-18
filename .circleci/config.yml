@@ -258,6 +258,8 @@ jobs:
             echo "API_URL = ${API_URL}"
             echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
             cat frontend/.env
+      - restore_cache:
+          key: frontend-build
       - run:
           name: Deploy frontend objects
           command: |
@@ -267,8 +269,16 @@ jobs:
             # tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
             # aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
             tar -czvf artifact-aa0c901.tar.gz dist
-            aws s3 cp dist s3://udapeople-aa0c901 --recursive
+            aws s3 cp dist s3://udapeople-aa0c90 --recursive
       - notify_slack
+      - run:
+          when: on_fail
+          name: Revert migrations
+          command: |
+            cd backend
+            npm install
+            npm run migrations:revert
+      # - destroy_environment
 
 
 workflows:
