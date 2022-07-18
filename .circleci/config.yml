@@ -295,21 +295,13 @@ jobs:
       - attach_workspace:
           at: ~/project
       - run:
-          name: install openssh
-          command: apk add --update openssh
-      - run:
-          name: Install Node and NPM
+          name: Add Dependencies
           command: |
-            curl --silent --location https://rpm.nodesource.com/setup_16.x | bash -
-            yum install -y nodejs
-      - run:
-          name: Install Ansible
-          command: |
-            python3 -m pip -V
-            if [ $? -eq 0 ]
-            then
-              python3 -m pip install --user ansible
-            fi
+            apk add --update openssh
+            apk add --update curl
+            apk add --update npm
+            apk add --update nodejs
+            apk add --update ansible
       - restore_cache:
           key: backend-build
       - run:
@@ -324,14 +316,19 @@ jobs:
             cd .circleci/ansible && ls -a
             echo "Contents  of the inventory.txt file is -------"
             cat inventory.txt
-            ansible-playbook -i inventory.txt deploy-backend.yml
+            ansible-playbook .circleci/ansible/deploy-backend.yml -i .circleci/ansible/inventory.txt
       - save_cache:
           paths: [backend/node-modules]
           key: backend-build
-      # - run:
-      #     name: Configure prometheus server
-      #     command: |
-      #       ansible-playbook server.yml -i ~/project/inventory.txt
+      - notify_slack
+      - run:
+          when: on_fail
+          name: Revert migrations
+          command: |
+            cd backend
+            npm install
+            npm run migrations:revert
+      - destroy_environment
 
 workflows:
   default:
@@ -353,6 +350,6 @@ workflows:
       - run_migrations:
           requires: [configure_infra]
       - deploy_frontend:
-          requires: [configure_infra]
+          requires: [run_migrations]
       - deploy_backend:
-          requires: [configure_infra]
+          requires: [run_migrations]
