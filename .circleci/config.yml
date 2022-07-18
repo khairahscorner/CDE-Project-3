@@ -242,8 +242,8 @@ jobs:
       - run:
           name: Install Ansible
           command: |
-            test_pip=`python3 -m pip -V`
-            if [ $test_pip -eq 0 ]
+            python3 -m pip -V
+            if [ $? -eq 0 ]
             then
               python3 -m pip install --user ansible
             else
@@ -256,7 +256,7 @@ jobs:
             ansible --version
             nodejs --version
             npm --version
-            python--version
+            python --version
       # - run:
       #     name: Get backend url
       #     command: |
