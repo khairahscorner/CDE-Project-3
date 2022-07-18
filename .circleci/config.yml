@@ -269,7 +269,7 @@ jobs:
             # tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
             # aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
             tar -czvf artifact-aa0c901.tar.gz dist
-            aws s3 cp dist s3://udapeople-aa0c90 --recursive
+            aws s3 cp dist s3://udapeople-aa0c901 --recursive
       - notify_slack
       - run:
           when: on_fail
@@ -278,7 +278,7 @@ jobs:
             cd backend
             npm install
             npm run migrations:revert
-      # - destroy_environment
+      - destroy_environment
 
 
 workflows:
