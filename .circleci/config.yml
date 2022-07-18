@@ -220,6 +220,9 @@ jobs:
                 echo appKey
                 curl --header "content-length:0" -X POST "https://keyvalue.immanuel.co/api/KeyVal/UpdateValue/$appKey/migration_${CIRCLE_WORKFLOW_ID:0:7}/1"
               fi
+      - save_cache:
+          paths: [backend/node-modules]
+          key: backend-build
       - notify_slack
 
   deploy_frontend:
@@ -253,7 +256,7 @@ jobs:
       - run:
           name: Confirm installations
           command: |
-            ansible --version
+            # ansible --version
             nodejs --version
             npm --version
             python --version
