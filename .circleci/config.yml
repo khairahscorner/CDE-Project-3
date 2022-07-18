@@ -312,11 +312,10 @@ jobs:
             npm run build
             cd ..
             tar -C backend -czvf artifact.tar.gz .
-            ls -a
             cd .circleci/ansible && ls -a
             echo "Contents  of the inventory.txt file is -------"
             cat inventory.txt
-            ansible-playbook .circleci/ansible/deploy-backend.yml -i .circleci/ansible/inventory.txt
+            ansible-playbook deploy-backend.yml -i inventory.txt
       - save_cache:
           paths: [backend/node-modules]
           key: backend-build
@@ -329,6 +328,19 @@ jobs:
             npm install
             npm run migrations:revert
       - destroy_environment
+
+  # smoke_test:
+  #   - run: 
+  #       name: Run smoke tests
+  #       command: |
+  #         export API_URL="http://${BACKEND_IP}:3030"
+  #         echo "${API_URL}"
+  #         if curl "${API_URL}/api/status" | grep "ok"
+  #         then
+  #             return 0
+  #         else
+  #             return 1
+  #         fi
 
 workflows:
   default:
