@@ -242,7 +242,8 @@ jobs:
       - run:
           name: Install Ansible
           command: |
-            if [ $(python3 -m pip -V) -eq 0 ]
+            test_pip=`python3 -m pip -V`
+            if [ $test_pip -eq 0 ]
             then
               python3 -m pip install --user ansible
             else
