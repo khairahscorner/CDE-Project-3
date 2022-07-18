@@ -40,12 +40,18 @@ jobs:
       - image: cimg/node:16.13.1
     steps:
       - checkout
+      - restore_cache:
+        key: frontend-build
       - run:
           name: "Compile frontend"
           command: |
             cd frontend
             npm install
             npm run build
+      - save_cache:
+          name: Restoring cache with build number {{ .BuildNum}}
+          paths: [frontend/node-modules]
+          key: frontend-build
       - notify_slack
 
   build_backend:
@@ -53,12 +59,17 @@ jobs:
       - image: cimg/node:16.13.1
     steps:
       - checkout
+      - restore_cache:
+        key: backend-build
       - run:
           name: "Compile backend"
           command: |
             cd backend
             npm install
             npm run build
+      - save_cache:
+          paths: [backend/node-modules]
+          key: backend-build
       - notify_slack      
   
   test_frontend:
@@ -66,12 +77,17 @@ jobs:
       - image: cimg/node:16.13.1
     steps:
       - checkout
+      - restore_cache:
+        key: frontend-build
       - run:
           name: "Unit tests for frontend"
           command: |
             cd frontend
             npm install
             npm run test
+      - save_cache:
+          paths: [frontend/node-modules]
+          key: frontend-build
       - notify_slack
 
   test_backend:
@@ -79,12 +95,17 @@ jobs:
       - image: cimg/node:16.13.1
     steps:
       - checkout
+      - restore_cache:
+        key: backend-build
       - run:
           name: "Unit tests for backend"
           command: |
             cd backend
             npm install
             npm run test
+      - save_cache:
+          paths: [backend/node-modules]
+          key: backend-build
       - notify_slack
   
   audit_frontend:
@@ -92,6 +113,8 @@ jobs:
       - image: cimg/node:13.8.0
     steps:
       - checkout
+      - restore_cache:
+        key: frontend-build
       - run:
           name: "Audit tests for frontend"
           command: |
@@ -106,6 +129,8 @@ jobs:
       - image: cimg/node:13.8.0
     steps:
       - checkout
+      - restore_cache:
+        key: backend-build
       - run:
           name: " tests for backend"
           command: |
@@ -154,20 +179,24 @@ jobs:
       - attach_workspace:
           at: ~/project
       - run:
-          name: Install main dependencies
+          name: Install dependencies
           command: |
             apk add --update tar gzip
             apk add --update openssh
+            apk add --update curl
             apk add --update ansible
       - run:
           name: Configure backend server
           command: |
-            pwd && ls -a
-            cat .circleci/ansible/inventory.txt
             ansible-playbook .circleci/ansible/configure-server.yml -i .circleci/ansible/inventory.txt
       - notify_slack
       - destroy_environment
 
+  # run_migrations:
+  #   docker:
+  #     - image: cimg/node:16.13.1
+  #   steps:
+  #     - checkout
 
 workflows:
   default:
