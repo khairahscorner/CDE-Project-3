@@ -220,18 +220,37 @@ jobs:
                 echo appKey
                 curl --header "content-length:0" -X POST "https://keyvalue.immanuel.co/api/KeyVal/UpdateValue/$appKey/migration_${CIRCLE_WORKFLOW_ID:0:7}/1"
               fi
+      - notify_slack
 
   deploy_frontend:
     docker:
       - image: amazon/aws-cli
     steps:
       - checkout
+      - run: yum install -y tar gzip
       - attach_workspace:
           at: ~/project
       - run:
           name: Install Python
           command: |
-            yum install python3
+            yum install -y python3
+      - run:
+          name: Install Node and NPM
+          command: |
+            curl --silent --location https://rpm.nodesource.com/setup_16.x | bash -
+            yum install -y nodejs
+      - run:
+          name: Install Ansible
+          command: |
+            yum install -y ansible
+      - run:
+          name: Confirm installations
+          command: |
+            ansible --version
+            nodejs --version
+            npm --version
+            python--version
+      - notify_slack
 
 
 workflows:
@@ -253,4 +272,5 @@ workflows:
           requires: [deploy_infra]
       - run_migrations:
           requires: [configure_infra]
-      - deploy_frontend
+      - deploy_frontend:
+          requires: [configure_infra]
