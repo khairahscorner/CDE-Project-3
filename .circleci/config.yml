@@ -12,22 +12,11 @@ commands:
           event: fail
           mentions: '@airahyusuff'
           template: basic_fail_1
-      # - slack/notify:
-      #     event: pass
-      #     channel: C03Q56HMW4R
-      #     mentions: '@airahyusuff'
-      #     custom: |
-      #       {
-      #         "blocks": [
-      #           {
-      #             "type": "section",
-      #             "text": {
-      #               "type": "mrkdwn",
-      #               "text": "Hello, this job passed. carry on!"
-      #             }
-      #           }
-      #         ]
-      #       }
+      - slack/notify:
+          event: pass
+          channel: C03Q56HMW4R
+          mentions: '@airahyusuff'
+          template: basic_success_1
 
   destroy_environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
@@ -183,17 +172,17 @@ jobs:
 workflows:
   default:
     jobs:
-      # - build_frontend
-      # - build_backend
-      # - test_frontend:
-      #     requires: [build_frontend]
-      # - test_backend:
-      #     requires: [build_backend]
-      # - audit_frontend:
-      #     requires: [build_frontend]
-      # - audit_backend:
-      #     requires: [build_backend]
-      - deploy_infra
-          # requires: [test_backend, test_frontend, audit_backend, audit_frontend]
+      - build_frontend
+      - build_backend
+      - test_frontend:
+          requires: [build_frontend]
+      - test_backend:
+          requires: [build_backend]
+      - audit_frontend:
+          requires: [build_frontend]
+      - audit_backend:
+          requires: [build_backend]
+      - deploy_infra:
+          requires: [test_backend, test_frontend, audit_backend, audit_frontend]
       - configure_infra:
           requires: [deploy_infra]
