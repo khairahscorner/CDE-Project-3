@@ -246,8 +246,6 @@ jobs:
               echo $APPKEY > ~/project/keys.txt
               cat ~/project/keys.txt
               curl --header "content-length:0" -X POST "https://keyvalue.immanuel.co/api/KeyVal/UpdateValue/${APPKEY}/migration_d2c2572/1"
-            else
-              echo "Migration failed"
             fi
       - persist_to_workspace:
           root: ~/project
