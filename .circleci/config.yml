@@ -310,7 +310,7 @@ jobs:
       - checkout
       - add_ssh_keys:
           fingerprints: ["5d:61:63:61:30:df:01:28:4a:25:aa:6f:58:1e:87:f1"]
-      - run: apk add --update tar gzip
+      - run: yum install -y tar gzip
       - attach_workspace:
           at: ~/project
       - run:
@@ -336,13 +336,13 @@ jobs:
           name: Deploy backend
           command: |
             cd backend
-            npm install
+            npm i
             npm run build
             cd ..
             tar -C backend -czvf artifact.tar.gz .
-            cp artifact.tar.gz .circleci/ansible/roles/deploy/files/
-            cat .circleci/ansible/inventory.txt
-            ansible-playbook .circleci/ansible/deploy-backend.yml -i .circleci/ansible/inventory.txt
+            cd .circleci/ansible
+            cat inventory.txt
+            ansible-playbook deploy-backend.yml -i inventory.txt
       - save_cache:
           paths: [backend/node-modules]
           key: backend-build
