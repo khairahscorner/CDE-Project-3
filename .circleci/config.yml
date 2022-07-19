@@ -249,7 +249,7 @@ jobs:
       - persist_to_workspace:
           root:  ~/project
           paths:
-            - keys.txt
+            - ~/project/keys.txt
       - save_cache:
           paths: [backend/node-modules]
           key: backend-build
