@@ -23,28 +23,11 @@
       global: yes
       production: yes
       state: latest
-  
-  - name: "make new directory"
-    shell: |
-      if [ -d "~/server" ]
-      then
-        echo "Directory already exists."
-      else
-        echo "Creating directory"
-        mkdir ~/server
-        cd ~ && ls -a
-      fi
-      exit 0
-    register: outputss
-  
-  - name: print message
-    debug:
-      msg: "{{ outputss.stdout }}"
 
   - name: "Extract backend artifact"
     unarchive:
       remote_src: yes
-      src: ../../artifact.tar.gz
+      src: ~/project/artifact.tar.gz
       dest: /home/ubuntu/server
     register: prints  
 
