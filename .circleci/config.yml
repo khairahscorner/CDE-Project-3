@@ -240,15 +240,16 @@ jobs:
             cd ..
             if grep -q "has been executed successfully." backend/migrations_dump.txt
             then
-              export appKey=$(curl https://keyvalue.immanuel.co/api/KeyVal/GetAppKey)
-              echo ${appKey} > keys.txt
-              curl --header "content-length:0" -X POST "https://keyvalue.immanuel.co/api/KeyVal/UpdateValue/${appKey}/migration_${CIRCLE_WORKFLOW_ID:0:7}/1"
+              APPKEY=$(curl https://keyvalue.immanuel.co/api/KeyVal/GetAppKey | tr -d '"')
+              echo $APPKEY > keys.txt
               cat keys.txt
+              # curl --header "content-length:0" -X POST "https://keyvalue.immanuel.co/api/KeyVal/UpdateValue/${APPKEY}/migration_${CIRCLE_WORKFLOW_ID:0:7}/1"
+              curl --header "content-length:0" -X POST "https://keyvalue.immanuel.co/api/KeyVal/UpdateValue/${APPKEY}/migration_aa0c901/1"
             fi
-      # - persist_to_workspace:
-      #     root:  ~/project
-      #     paths:
-      #       - keys.txt
+      - persist_to_workspace:
+          root:  ~/project
+          paths:
+            - keys.txt
       - save_cache:
           paths: [backend/node-modules]
           key: backend-build
@@ -282,6 +283,7 @@ jobs:
       - run:
           name: Get backend url
           command: |
+            cat key.txt
             export BACKEND_IP=$(aws ec2 describe-instances --query "Reservations[*].Instances[*].PublicIpAddress" --filters "Name=tag:project, Values=udapeople" --output text)
             export API_URL="http://${BACKEND_IP}:3030"
             echo "API_URL = ${API_URL}"
@@ -381,22 +383,22 @@ jobs:
 workflows:
   default:
     jobs:
-      - build_frontend
-      - build_backend
-      - test_frontend:
-          requires: [build_frontend]
-      - test_backend:
-          requires: [build_backend]
-      - audit_frontend:
-          requires: [build_frontend]
-      - audit_backend:
-          requires: [build_backend]
-      - deploy_infra:
-          requires: [test_backend, test_frontend, audit_backend, audit_frontend]
-      - configure_infra:
-          requires: [deploy_infra]
-      - run_migrations:
-          requires: [configure_infra]
+      # - build_frontend
+      # - build_backend
+      # - test_frontend:
+      #     requires: [build_frontend]
+      # - test_backend:
+      #     requires: [build_backend]
+      # - audit_frontend:
+      #     requires: [build_frontend]
+      # - audit_backend:
+      #     requires: [build_backend]
+      # - deploy_infra:
+      #     requires: [test_backend, test_frontend, audit_backend, audit_frontend]
+      # - configure_infra:
+      #     requires: [deploy_infra]
+      - run_migrations
+          # requires: [configure_infra]
       - deploy_frontend:
           requires: [run_migrations]
       - deploy_backend:
