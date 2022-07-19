@@ -234,7 +234,6 @@ jobs:
       - run:
           name: Save migration status to key with https://keyvalue.immanuel.co/
           command: |
-            cat ~/project/backend/migrations_dump.txt
             if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
             then
               APPKEY=$(curl https://keyvalue.immanuel.co/api/KeyVal/GetAppKey | tr -d '"')
@@ -319,11 +318,16 @@ jobs:
       - run:
           name: Add Dependencies
           command: |
-            apk add --update openssh
-            apk add --update curl
-            apk add --update npm
-            apk add --update nodejs
+            apk add --update openssh curl unzip
+            apk add --update npm nodejs
             apk add --update ansible
+      - run:
+          name: Install AWS CLI
+          command: |
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            ./aws/install
+            aws --version
       - restore_cache:
           key: backend-build
       - run:
@@ -355,6 +359,10 @@ jobs:
           name: Install dependencies
           command: |
             yum install -y tar gzip
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            ./aws/install
+            aws --version
       - attach_workspace:
           at: ~/project
       - run: 
@@ -403,9 +411,9 @@ workflows:
           requires: [deploy_infra]
       - run_migrations:
           requires: [configure_infra]
-      # - deploy_frontend:
-      #     requires: [run_migrations]
-      # - deploy_backend:
-      #     requires: [run_migrations]
-      # - smoke_tests:
-      #     requires: [deploy_frontend, deploy_backend]
+      - deploy_frontend:
+          requires: [run_migrations]
+      - deploy_backend:
+          requires: [run_migrations]
+      - smoke_tests:
+          requires: [deploy_frontend, deploy_backend]
