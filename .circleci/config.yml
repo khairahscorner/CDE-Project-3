@@ -209,19 +209,18 @@ jobs:
             apk add --update openssh
             apk add --update curl
             apk add --update ansible
-      - run:
-          name: Install AWS CLI
-          command: |
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            unzip awscliv2.zip
-            ./aws/install
-            aws --version
+      # - run:
+      #     name: Install AWS CLI
+      #     command: |
+      #       curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+      #       unzip awscliv2.zip
+      #       ./aws/install
+      #       /usr/local/bin/aws --version
       - run:
           name: Configure backend server
           command: |
             ansible-playbook .circleci/ansible/configure-server.yml -i .circleci/ansible/inventory.txt
       - notify_slack
-      - destroy_environment
 
   run_migrations:
     docker:
@@ -259,7 +258,6 @@ jobs:
           paths: [backend/node-modules]
           key: backend-build
       - notify_slack
-      - destroy_environment
 
   deploy_frontend:
     docker:
@@ -311,10 +309,11 @@ jobs:
           key: frontend-build
       - notify_slack
       - destroy_environment
+      - revert_migrations
 
   deploy_backend:
     docker:
-      - image: python:3.8-alpine3.15
+      - image: amazon/aws-cli
     working_directory: ~/project
     steps:
       - checkout
@@ -324,18 +323,22 @@ jobs:
       - attach_workspace:
           at: ~/project
       - run:
-          name: Add Dependencies
+          name: Install Python
           command: |
-            apk add --update openssh curl unzip
-            apk add --update npm nodejs
-            apk add --update ansible
+            yum install -y python3
       - run:
-          name: Install AWS CLI
+          name: Install Node and NPM
           command: |
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            unzip awscliv2.zip
-            ./aws/install
-            aws --version
+            curl --silent --location https://rpm.nodesource.com/setup_16.x | bash -
+            yum install -y nodejs
+      - run:
+          name: Install Ansible
+          command: |
+            python3 -m pip -V
+            if [ $? -eq 0 ]
+            then
+              python3 -m pip install --user ansible
+            fi
       - restore_cache:
           key: backend-build
       - run:
@@ -367,10 +370,6 @@ jobs:
           name: Install dependencies
           command: |
             yum install -y tar gzip
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            unzip awscliv2.zip
-            ./aws/install
-            aws --version
       - attach_workspace:
           at: ~/project
       - run: 
