@@ -23,7 +23,7 @@ commands:
     parameters:
       workflowID:
         type: string
-        # default: d2c2572
+        # default: 3c70603
         default: ${CIRCLE_WORKFLOW_ID:0:7}
     steps:
       - run:
@@ -40,7 +40,7 @@ commands:
     parameters:
       workflowID:
         type: string
-        # default: d2c2572
+        # default: 3c70603
         default: ${CIRCLE_WORKFLOW_ID:0:7}
     steps:
       - run:
@@ -261,7 +261,7 @@ jobs:
             if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
             then
               curl https://kvdb.io/7HMEcsZ9ZHEr8PGWX4LWko/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
-              # curl https://kvdb.io/7HMEcsZ9ZHEr8PGWX4LWko/migration_d2c2572  -d '1'
+              # curl https://kvdb.io/7HMEcsZ9ZHEr8PGWX4LWko/migration_3c70603  -d '1'
             fi
       - persist_to_workspace:
           root:  ~/project
@@ -313,8 +313,8 @@ jobs:
             cd frontend
             npm install
             npm run build
-            # tar -czvf artifact-d2c2572.tar.gz dist
-            # aws s3 cp dist s3://udapeople-d2c2572 --recursive
+            # tar -czvf artifact-3c70603.tar.gz dist
+            # aws s3 cp dist s3://udapeople-3c70603 --recursive
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
       - save_cache:
@@ -389,7 +389,7 @@ jobs:
       - run: 
           name: Run frontend smoke tests
           command: |
-            URL="http://udapeople-d2c2572.s3-website-us-east-1.amazonaws.com/#/employees"            
+            URL="http://udapeople-3c70603.s3-website-us-east-1.amazonaws.com/#/employees"            
             echo ${URL} 
             if curl -s ${URL} | grep "Welcome"
             then
