@@ -304,32 +304,20 @@ jobs:
 
   deploy_backend:
     docker:
-      - image: amazon/aws-cli
+      - image: python:3.8-alpine3.15
     working_directory: ~/project
     steps:
       - checkout
       - add_ssh_keys:
           fingerprints: ["5d:61:63:61:30:df:01:28:4a:25:aa:6f:58:1e:87:f1"]
-      - run: yum install -y tar gzip
       - attach_workspace:
           at: ~/project
       - run:
-          name: Install Python
+          name: Install Dependencies
           command: |
-            yum install -y python3
-      - run:
-          name: Install Node and NPM
-          command: |
-            curl --silent --location https://rpm.nodesource.com/setup_16.x | bash -
-            yum install -y nodejs
-      - run:
-          name: Install Ansible
-          command: |
-            python3 -m pip -V
-            if [ $? -eq 0 ]
-            then
-              python3 -m pip install --user ansible
-            fi
+            apk add --update tar gzip 
+            apk add --update nodejs npm
+            apk add --update ansible
       - restore_cache:
           key: backend-build
       - run:
