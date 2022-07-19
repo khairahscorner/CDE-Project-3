@@ -23,17 +23,28 @@
       global: yes
       production: yes
       state: latest
-
-  - name: "Extract backend artifact"
-    unarchive:
-      remote_src: yes
-      src: ~/project/artifact.tar.gz
-      dest: /home/ubuntu/server
-    register: prints  
-
+  
+  - name: "make new directory"
+    shell: |
+        cd /home/ubuntu && ls -al
+      fi
+      exit 0
+    register: outputss
+  
   - name: print message
     debug:
-      msg: "{{ prints.stdout }}"
+      msg: "{{ outputss.stdout }}"
+
+  # - name: "Extract backend artifact"
+  #   unarchive:
+  #     remote_src: yes
+  #     src: /home/artifact.tar.gz
+  #     dest: /home/ubuntu/server
+  #   register: prints  
+
+  # - name: print message
+  #   debug:
+  #     msg: "{{ prints.stdout }}"
 
   # - name: "start server"
   #   shell: |

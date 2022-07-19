@@ -73,7 +73,6 @@ jobs:
             npm install
             npm run build
       - save_cache:
-          name: Restoring cache with build number {{ .BuildNum}}
           paths: [frontend/node-modules]
           key: frontend-build
       - notify_slack
@@ -232,19 +231,20 @@ jobs:
       - run:
           name: Run migrations
           command: |
-              cd backend
-              npm install
-              npm run migrations > migrations_dump.txt
+            cd backend
+            npm install
+            npm run migrations > migrations_dump.txt
       - run:
           name: Save migration status to key with https://keyvalue.immanuel.co/
-          command: |   
-              if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
-              then
-                export appKey=$(curl https://keyvalue.immanuel.co/api/KeyVal/GetAppKey)
-                echo "${appKey}" > ~/project/keys.txt
-                curl --header "content-length:0" -X POST "https://keyvalue.immanuel.co/api/KeyVal/UpdateValue/${appKey}/migration_${CIRCLE_WORKFLOW_ID:0:7}/1"
-                cat ~/project/keys.txt
-              fi
+          command: |
+            cd ..
+            if grep -q "has been executed successfully." backend/migrations_dump.txt
+            then
+              export appKey=$(curl https://keyvalue.immanuel.co/api/KeyVal/GetAppKey)
+              echo ${appKey} > keys.txt
+              curl --header "content-length:0" -X POST "https://keyvalue.immanuel.co/api/KeyVal/UpdateValue/${appKey}/migration_${CIRCLE_WORKFLOW_ID:0:7}/1"
+              cat keys.txt
+            fi
       # - persist_to_workspace:
       #     root:  ~/project
       #     paths:
