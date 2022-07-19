@@ -224,6 +224,7 @@ jobs:
   run_migrations:
     docker:
       - image: cimg/node:16.13.1
+    working_directory: ~/project
     steps:
       - checkout
       - restore_cache:
