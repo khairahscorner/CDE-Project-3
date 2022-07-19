@@ -23,7 +23,8 @@ commands:
     parameters:
       workflowID:
         type: string
-        default: ${CIRCLE_WORKFLOW_ID:0:7}
+        default: d2c2572
+        # default: ${CIRCLE_WORKFLOW_ID:0:7}
     steps:
       - run:
           name: Destroy created infrastructure if any job fails
@@ -39,7 +40,8 @@ commands:
     parameters:
       workflowID:
         type: string
-        default: ${CIRCLE_WORKFLOW_ID:0:7}
+        default: d2c2572
+        # default: ${CIRCLE_WORKFLOW_ID:0:7}
     steps:
       - run:
           when: on_fail
@@ -174,11 +176,11 @@ jobs:
       - run:
           name: Ensure backend infrastructure exist
           command: |
-            aws cloudformation deploy --template-file .circleci/files/backend.yml --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7} --parameter-overrides ID=${CIRCLE_WORKFLOW_ID:0:7} --tags project=udapeople
+            aws cloudformation deploy --template-file .circleci/files/backend.yml --stack-name udapeople-backend-d2c2572 --parameter-overrides ID=d2c2572 --tags project=udapeople
       - run:
           name: Ensure frontend infrastructure exist
           command: |
-            aws cloudformation deploy --template-file .circleci/files/frontend.yml --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7} --parameter-overrides ID=${CIRCLE_WORKFLOW_ID:0:7} --tags project=udapeople
+            aws cloudformation deploy --template-file .circleci/files/frontend.yml --stack-name udapeople-frontend-d2c2572 --parameter-overrides ID=d2c2572 --tags project=udapeople
       - run:
           name: Add the EC2 instance IP to the Ansible inventory
           command: |
@@ -226,9 +228,6 @@ jobs:
           command: |
             cd backend
             npm install
-            npm audit fix --audit-level=critical --force
-            npm audit fix --force
-            npm audit --audit-level=critical
             npm run migrations > migrations_dump.txt
             cat migrations_dump.txt
       - run:
@@ -240,7 +239,7 @@ jobs:
               APPKEY=$(curl https://keyvalue.immanuel.co/api/KeyVal/GetAppKey | tr -d '"')
               echo $APPKEY > ~/project/keys.txt
               cat ~/project/keys.txt
-              curl --header "content-length:0" -X POST "https://keyvalue.immanuel.co/api/KeyVal/UpdateValue/${APPKEY}/migration_${CIRCLE_WORKFLOW_ID:0:7}/1"
+              curl --header "content-length:0" -X POST "https://keyvalue.immanuel.co/api/KeyVal/UpdateValue/${APPKEY}/migration_d2c2572/1"
             else
               echo "Migration failed"
               return 1
@@ -295,8 +294,10 @@ jobs:
             cd frontend
             npm install
             npm run build
-            tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
-            aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
+            tar -czvf artifact-d2c2572.tar.gz dist
+            aws s3 cp dist s3://udapeople-d2c2572 --recursive
+            # tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
+            # aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
       - save_cache:
           paths: [frontend/node-modules]
           key: frontend-build
@@ -370,7 +371,7 @@ jobs:
       - run: 
           name: Run frontend smoke tests
           command: |
-            URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-1.amazonaws.com/#/employees"            
+            URL="http://udapeople-d2c2572.s3-website-us-east-1.amazonaws.com/#/employees"            
             echo ${URL} 
             if curl -s ${URL} | grep "Welcome"
             then
