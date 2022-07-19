@@ -39,17 +39,11 @@
     copy:
       src: artifact.tar.gz
       dest: ~/server/artifact.tar.gz
-    register: copied_files
-
-  - debug: msg="{{ copied_files.stdout }}"
 
   - name: "Extract backend artifact"
     unarchive:
       src: artifact.tar.gz
       dest: /home/ubuntu/server
-    register: prints
-
-  - debug: msg="{{ prints.stdout }}"
 
   - name: "start server"
     shell: |
