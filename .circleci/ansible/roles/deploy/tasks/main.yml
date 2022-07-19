@@ -39,6 +39,11 @@
     shell: |
       pwd
       ls -a
+    register: prints
+
+  - name: print message
+    debug:
+      msg: "{{ prints.stdout }}"
 
   # - name: "Extract backend artifact"
   #   unarchive:
