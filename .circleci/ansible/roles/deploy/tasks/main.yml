@@ -23,22 +23,31 @@
       global: yes
       production: yes
       state: latest
-  
-  - name: "make new directory"
+
+  - name: "make new dir"
     shell: |
-        cd /home/ubuntu && ls -al
+      if [ -d "~/server" ]
+      then
+        echo "Directory already exists."
+      else
+        echo "Creating directory"
+        mkdir ~/server
       fi
       exit 0
-    register: outputss
+
+  - name: "copy artifact"
+    copy:
+      src: artifact.tar.gz
+      dest: ~/server/artifact.tar.gz
+    register: copied_files
   
   - name: print message
     debug:
-      msg: "{{ outputss.stdout }}"
+      msg: "{{ copied_files.stdout }}"
 
   # - name: "Extract backend artifact"
   #   unarchive:
-  #     remote_src: yes
-  #     src: /home/artifact.tar.gz
+  #     src: artifact.tar.gz
   #     dest: /home/ubuntu/server
   #   register: prints  
 
@@ -51,12 +60,6 @@
   #     npm install
   #     pm2 stop default
   #     pm2 start ~/server/src/main.ts npm -- start
-
-  # - name: "copy server file"
-  #   copy:
-  #     src: index.js
-  #     dest: ~/web/index.js
-  #   register: copied_files
 
   # - name: "start server"
   #   shell: pm2 start ~/web/index.js -f
