@@ -224,7 +224,6 @@ jobs:
   run_migrations:
     docker:
       - image: cimg/node:16.13.1
-    working_directory: ~/project
     steps:
       - checkout
       - restore_cache:
@@ -240,11 +239,12 @@ jobs:
           command: |
             cd ..
             APPKEY=$(curl https://keyvalue.immanuel.co/api/KeyVal/GetAppKey | tr -d '"')
-            echo $APPKEY > keys.txt
+            echo $APPKEY > ~/project/keys.txt
             cat keys.txt
             # curl --header "content-length:0" -X POST "https://keyvalue.immanuel.co/api/KeyVal/UpdateValue/${APPKEY}/migration_${CIRCLE_WORKFLOW_ID:0:7}/1"
             curl --header "content-length:0" -X POST "https://keyvalue.immanuel.co/api/KeyVal/UpdateValue/${APPKEY}/migration_aa0c901/1"
             pwd && ls -a
+            cd project && ls -a
       # - persist_to_workspace:
       #     root: ~/project
       #     paths:
