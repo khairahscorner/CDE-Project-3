@@ -23,8 +23,8 @@ commands:
     parameters:
       workflowID:
         type: string
-        # default: 3c70603
-        default: ${CIRCLE_WORKFLOW_ID:0:7}
+        default: 3c70603
+        # default: ${CIRCLE_WORKFLOW_ID:0:7}
     steps:
       - run:
           name: Destroy created infrastructure if any job fails
@@ -40,15 +40,14 @@ commands:
     parameters:
       workflowID:
         type: string
-        # default: 3c70603
-        default: ${CIRCLE_WORKFLOW_ID:0:7}
+        default: 3c70603
+        # default: ${CIRCLE_WORKFLOW_ID:0:7}
     steps:
       - run:
           when: on_fail
           name: Revert migrations
           command: |
-            export APPKEY=$(cat ~/project/keys.txt)
-            SUCCESS=$(curl https://keyvalue.immanuel.co/api/KeyVal/GetValue/${APPKEY}/migration_<< parameters.workflowID >>)
+            SUCCESS=$(curl --insecure  https://kvdb.io/7HMEcsZ9ZHEr8PGWX4LWko/migration_<< parameters.workflow_id >>)
             if (( $SUCCESS == 1 ));
             then
               cd ~/project/backend
@@ -393,13 +392,13 @@ jobs:
             echo ${URL} 
             if curl -s ${URL} | grep "Welcome"
             then
-              exit 0
+              exit 1
             else
               exit 1
             fi
       - notify_slack
-      # - destroy_environment
-      # - revert_migrations
+      - destroy_environment
+      - revert_migrations
 
 workflows:
   default:
