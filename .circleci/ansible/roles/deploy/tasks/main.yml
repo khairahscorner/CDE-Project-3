@@ -35,20 +35,15 @@
       fi
       exit 0
 
-  - name: "check for available local files"
-    shell: |
-      pwd
-      ls -a
-    register: prints
+  - name: "Extract backend artifact"
+    unarchive:
+      src: artifact.tar.gz
+      dest: /home/ubuntu/server
+    register: prints  
 
   - name: print message
     debug:
       msg: "{{ prints.stdout }}"
-
-  # - name: "Extract backend artifact"
-  #   unarchive:
-  #     src: artifact.tar.gz
-  #     dest: ~/server
 
   # - name: "start server"
   #   shell: |
