@@ -394,28 +394,50 @@ jobs:
       - destroy_environment
       - revert_migrations
 
+  cloudfront_update:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run: yum install -y tar gzip
+      - run:
+          name: Fetch and save the old pipeline ID (bucket name) responsible for the last release.
+          command: |
+            OLD_ID=$(aws cloudformation list-exports --query "Exports[?Name==\`WorkflowID\`].Value" --no-paginate --output text)
+            echo $OLD_ID >> ~/OLD_ID.txt
+            cat ~/OLD_ID.txt
+      - run:
+          name: Execute CloudFront template
+          command: |
+            #  cloudformation deploy --template-file .circleci/files/cloudfront.yml --stack-name cloudfrontStack --parameter-overrides WorkflowID="udapeople-${CIRCLE_WORKFLOW_ID:0:7}" --tags project=udapeople
+            cloudformation deploy --template-file .circleci/files/cloudfront.yml --stack-name cloudfrontStack --parameter-overrides WorkflowID="udapeople-b006846" --tags project=udapeople
+            echo "OldWorkflowID: ${OLD_ID}"
+            echo "REAL NewWorkflowID: udapeople-${CIRCLE_WORKFLOW_ID:0:7}"
+            echo "NewWorkflowID: udapeople-b006846"
+
 workflows:
   default:
     jobs:
-      - build_frontend
-      - build_backend
-      - test_frontend:
-          requires: [build_frontend]
-      - test_backend:
-          requires: [build_backend]
-      - audit_frontend:
-          requires: [build_frontend]
-      - audit_backend:
-          requires: [build_backend]
-      - deploy_infra:
-          requires: [test_backend, test_frontend, audit_backend, audit_frontend]
-      - configure_infra:
-          requires: [deploy_infra]
-      - run_migrations:
-          requires: [configure_infra]
-      - deploy_frontend:
-          requires: [run_migrations]
-      - deploy_backend:
-          requires: [run_migrations]
-      - smoke_tests:
-          requires: [deploy_frontend, deploy_backend]
+      # - build_frontend
+      # - build_backend
+      # - test_frontend:
+      #     requires: [build_frontend]
+      # - test_backend:
+      #     requires: [build_backend]
+      # - audit_frontend:
+      #     requires: [build_frontend]
+      # - audit_backend:
+      #     requires: [build_backend]
+      # - deploy_infra:
+      #     requires: [test_backend, test_frontend, audit_backend, audit_frontend]
+      # - configure_infra:
+      #     requires: [deploy_infra]
+      # - run_migrations:
+      #     requires: [configure_infra]
+      # - deploy_frontend:
+      #     requires: [run_migrations]
+      # - deploy_backend:
+      #     requires: [run_migrations]
+      # - smoke_tests:
+      #     requires: [deploy_frontend, deploy_backend]
+      - cloudfront_update
