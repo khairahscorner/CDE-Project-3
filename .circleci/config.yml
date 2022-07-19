@@ -219,7 +219,23 @@ jobs:
       - run:
           name: Configure backend server
           command: |
-            ansible-playbook .circleci/ansible/configure-server.yml -i .circleci/ansible/inventory.txt
+            echo NODE_ENV=production > ~/project/backend/.env
+            echo TYPEORM_CONNECTION=$TYPEORM_CONNECTION > ~/project/backend/.env
+            echo TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR > ~/project/backend/.env
+            echo TYPEORM_ENTITIES=$TYPEORM_ENTITIES > ~/project/backend/.env
+            echo TYPEORM_MIGRATIONS=$TYPEORM_MIGRATIONS > ~/project/backend/.env
+            echo TYPEORM_HOST=$TYPEORM_HOST > ~/project/backend/.env
+            echo TYPEORM_PORT=$TYPEORM_PORT > ~/project/backend/.env
+            echo TYPEORM_USERNAME=$TYPEORM_USERNAME > ~/project/backend/.env
+            echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD > ~/project/backend/.env
+            echo TYPEORM_DATABASE=$TYPEORM_DATABASE > ~/project/backend/.env
+            cat ~/project/backend/.env
+            cd ~/project/.circleci/ansible
+            ansible-playbook configure-server.yml -i inventory.txt
+      - persist_to_workspace:
+          root:  ~/project
+          paths:
+            - backend/.env
       - notify_slack
 
   run_migrations:
@@ -229,6 +245,8 @@ jobs:
       - checkout
       - restore_cache:
           key: backend-build
+      - attach_workspace:
+          at: ~/project
       - run:
           name: Run migrations
           no_output_timeout: 30m
@@ -245,6 +263,10 @@ jobs:
               curl https://kvdb.io/7HMEcsZ9ZHEr8PGWX4LWko/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
               # curl https://kvdb.io/7HMEcsZ9ZHEr8PGWX4LWko/migration_d2c2572  -d '1'
             fi
+      - persist_to_workspace:
+          root:  ~/project
+          paths:
+            - backend/.env
       - save_cache:
           paths: [backend/node-modules]
           key: backend-build
