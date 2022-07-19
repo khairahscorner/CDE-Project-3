@@ -53,7 +53,7 @@ commands:
             then
               cd ~/project/backend
               npm install
-              npm run migration:revert
+              npm run migrations:revert
             fi    
 jobs:
   build_frontend:
@@ -210,6 +210,13 @@ jobs:
             apk add --update curl
             apk add --update ansible
       - run:
+          name: Install AWS CLI
+          command: |
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            ./aws/install
+            aws --version
+      - run:
           name: Configure backend server
           command: |
             ansible-playbook .circleci/ansible/configure-server.yml -i .circleci/ansible/inventory.txt
@@ -242,7 +249,7 @@ jobs:
               curl --header "content-length:0" -X POST "https://keyvalue.immanuel.co/api/KeyVal/UpdateValue/${APPKEY}/migration_d2c2572/1"
             else
               echo "Migration failed"
-              return 1
+              npm run migrations:revert
             fi
       - persist_to_workspace:
           root: ~/project
@@ -252,6 +259,7 @@ jobs:
           paths: [backend/node-modules]
           key: backend-build
       - notify_slack
+      - destroy_environment
 
   deploy_frontend:
     docker:
