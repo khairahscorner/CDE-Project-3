@@ -23,8 +23,8 @@ commands:
     parameters:
       workflowID:
         type: string
-        default: d2c2572
-        # default: ${CIRCLE_WORKFLOW_ID:0:7}
+        # default: d2c2572
+        default: ${CIRCLE_WORKFLOW_ID:0:7}
     steps:
       - run:
           name: Destroy created infrastructure if any job fails
@@ -40,8 +40,8 @@ commands:
     parameters:
       workflowID:
         type: string
-        default: d2c2572
-        # default: ${CIRCLE_WORKFLOW_ID:0:7}
+        # default: d2c2572
+        default: ${CIRCLE_WORKFLOW_ID:0:7}
     steps:
       - run:
           when: on_fail
@@ -176,11 +176,11 @@ jobs:
       - run:
           name: Ensure backend infrastructure exist
           command: |
-            aws cloudformation deploy --template-file .circleci/files/backend.yml --stack-name udapeople-backend-d2c2572 --parameter-overrides ID=d2c2572 --tags project=udapeople
+            aws cloudformation deploy --template-file .circleci/files/backend.yml --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7} --parameter-overrides ID=${CIRCLE_WORKFLOW_ID:0:7} --tags project=udapeople
       - run:
           name: Ensure frontend infrastructure exist
           command: |
-            aws cloudformation deploy --template-file .circleci/files/frontend.yml --stack-name udapeople-frontend-d2c2572 --parameter-overrides ID=d2c2572 --tags project=udapeople
+            aws cloudformation deploy --template-file .circleci/files/frontend.yml --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7} --parameter-overrides ID=${CIRCLE_WORKFLOW_ID:0:7} --tags project=udapeople
       - run:
           name: Add the EC2 instance IP to the Ansible inventory
           command: |
@@ -191,7 +191,7 @@ jobs:
           paths:
             - .circleci/ansible/inventory.txt
       - notify_slack
-      - destroy_environment
+      # - destroy_environment
 
   configure_infra:
     docker:
@@ -242,8 +242,8 @@ jobs:
           command: |
             if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
             then
-              # curl https://kvdb.io/7HMEcsZ9ZHEr8PGWX4LWko/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
-              curl https://kvdb.io/7HMEcsZ9ZHEr8PGWX4LWko/migration_d2c2572  -d '1'
+              curl https://kvdb.io/7HMEcsZ9ZHEr8PGWX4LWko/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
+              # curl https://kvdb.io/7HMEcsZ9ZHEr8PGWX4LWko/migration_d2c2572  -d '1'
             fi
       - save_cache:
           paths: [backend/node-modules]
@@ -291,10 +291,10 @@ jobs:
             cd frontend
             npm install
             npm run build
-            tar -czvf artifact-d2c2572.tar.gz dist
-            aws s3 cp dist s3://udapeople-d2c2572 --recursive
-            # tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
-            # aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
+            # tar -czvf artifact-d2c2572.tar.gz dist
+            # aws s3 cp dist s3://udapeople-d2c2572 --recursive
+            tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
+            aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
       - save_cache:
           paths: [frontend/node-modules]
           key: frontend-build
@@ -305,6 +305,7 @@ jobs:
   deploy_backend:
     docker:
       - image: python:3.8-alpine3.15
+      # - image: cimg/python:3.7-node
     working_directory: ~/project
     steps:
       - checkout
@@ -340,7 +341,7 @@ jobs:
 
   smoke_tests:
     docker:
-      - image: amazon/aws-cli
+      - image: alpine:3.16.1
     steps:
       - checkout
       - add_ssh_keys:
@@ -348,7 +349,15 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            yum install -y tar gzip
+            apk add --update tar gzip
+            apk add --update openssh
+            apk add --update curl
+      # - run:
+      #     name: Install AWS CLI 2
+      #     command: |
+      #       apk update && apk add --no-cache zip
+      #       curl -s https://awscli.amazonaws.com/awscli-exe-linux-x86_64-2.2.43.zip -o awscliv2.zip
+      #       unzip awscliv2.zip && sudo ./aws/install
       - attach_workspace:
           at: ~/project
       - run: 
@@ -366,7 +375,7 @@ jobs:
       - run: 
           name: Run frontend smoke tests
           command: |
-            URL="http://udapeople-d2c2572.s3-website-us-east-1.amazonaws.com/#/employees"            
+            URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-1.amazonaws.com/#/employees"            
             echo ${URL} 
             if curl -s ${URL} | grep "Welcome"
             then
