@@ -32,12 +32,19 @@
       else
         echo "Creating directory"
         mkdir ~/server
+        cd ~ && ls -a
       fi
       exit 0
+    register: outputss
+  
+  - name: print message
+    debug:
+      msg: "{{ outputss.stdout }}"
 
   - name: "Extract backend artifact"
     unarchive:
-      src: artifact.tar.gz
+      remote_src: yes
+      src: ../../artifact.tar.gz
       dest: /home/ubuntu/server
     register: prints  
 
