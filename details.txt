@@ -3,7 +3,7 @@ DB-identifier= udapeopleairah
 db-admin-username= postgres
 db-admin-password= udapeople
 port= 5432
-default_db_name= postgres
+default_db_name= udapeopleairah
 db-endpoint= udapeopleairah.cplgvre9vcem.us-east-1.rds.amazonaws.com
 
 accountID = 904378481630

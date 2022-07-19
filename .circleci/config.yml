@@ -233,10 +233,11 @@ jobs:
           command: |
             cd backend
             npm install
-            npm run migrations > migrations_dump.txt
+            npm run migrations:create > migrations_dump.txt
       - run:
           name: Save migration status to key with https://keyvalue.immanuel.co/
           command: |
+            cat ~/project/backend/migrations_dump.txt
             if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
             then
               APPKEY=$(curl https://keyvalue.immanuel.co/api/KeyVal/GetAppKey | tr -d '"')
@@ -285,7 +286,6 @@ jobs:
       - run:
           name: Get backend url
           command: |
-            cat key.txt
             export BACKEND_IP=$(aws ec2 describe-instances --query "Reservations[*].Instances[*].PublicIpAddress" --filters "Name=tag:project, Values=udapeople" --output text)
             export API_URL="http://${BACKEND_IP}:3030"
             echo "API_URL = ${API_URL}"
