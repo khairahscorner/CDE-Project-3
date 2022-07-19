@@ -248,7 +248,6 @@ jobs:
               curl --header "content-length:0" -X POST "https://keyvalue.immanuel.co/api/KeyVal/UpdateValue/${APPKEY}/migration_d2c2572/1"
             else
               echo "Migration failed"
-              npm run migrations:revert
             fi
       - persist_to_workspace:
           root: ~/project
