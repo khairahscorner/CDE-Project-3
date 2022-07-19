@@ -34,7 +34,30 @@ commands:
             aws s3 rm s3://udapeople-<< parameters.workflowID >> --recursive
             aws cloudformation delete-stack --stack-name udapeople-backend-<< parameters.workflowID >>
             aws cloudformation delete-stack --stack-name udapeople-frontend-<< parameters.workflowID >>
-        
+
+  revert_migrations:
+    description: Revert last migration
+    parameters:
+      workflowID:
+        type: string
+        # default: ${CIRCLE_WORKFLOW_ID:0:7}
+        default: aa0c901     
+    steps:
+      - run:
+          when: on_fail
+          name: Revert migrations
+          command: |
+            cd backend
+            npm install
+            npm run migrations:revert
+            export APPKEY=$(cat ~/project/keys.txt)
+            SUCCESS=$(curl https://keyvalue.immanuel.co/api/KeyVal/GetValue/${APPKEY}/migration_<< parameters.workflowID >>)
+            if (( $SUCCESS == 1 ));
+            then
+                cd ~/project/backend
+                npm install
+                npm run migration:revert
+            fi    
 jobs:
   build_frontend:
     docker:
@@ -217,15 +240,15 @@ jobs:
           command: |   
               if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
               then
-                export appKey=${curl https://keyvalue.immanuel.co/api/KeyVal/GetAppKey}
+                export appKey=$(curl https://keyvalue.immanuel.co/api/KeyVal/GetAppKey)
                 echo "${appKey}" > ~/project/keys.txt
                 curl --header "content-length:0" -X POST "https://keyvalue.immanuel.co/api/KeyVal/UpdateValue/${appKey}/migration_${CIRCLE_WORKFLOW_ID:0:7}/1"
                 cat ~/project/keys.txt
               fi
-      - persist_to_workspace:
-          root:  ~/project
-          paths:
-            - keys.txt
+      # - persist_to_workspace:
+      #     root:  ~/project
+      #     paths:
+      #       - keys.txt
       - save_cache:
           paths: [backend/node-modules]
           key: backend-build
@@ -280,14 +303,6 @@ jobs:
           paths: [frontend/node-modules]
           key: frontend-build
       - notify_slack
-      - run:
-          when: on_fail
-          name: Revert migrations
-          command: |
-            cd backend
-            npm install
-            npm run migrations:revert
-      - destroy_environment
 
   deploy_backend:
     docker:
@@ -324,58 +339,44 @@ jobs:
       - save_cache:
           paths: [backend/node-modules]
           key: backend-build
-      - notify_slack
-      # - run:
-      #     when: on_fail
-      #     name: Revert migrations
-      #     command: |
-      #       cd backend
-      #       npm install
-      #       npm run migrations:revert
-      #       export APPKEY=$(cat ~/project/keys.txt)
-      #       SUCCESS=$(curl https://keyvalue.immanuel.co/api/KeyVal/GetValue/${APPKEY}/migration_${CIRCLE_WORKFLOW_ID:0:7})
-      #       if (( $SUCCESS == 1 ));
-      #       then
-      #           cd ~/project/backend
-      #           npm install
-      #           npm run migration:revert
-      #       fi  
-      - destroy_environment
+      - notify_slack 
 
-  # smoke_test:
-  #   docker:
-  #     - image: cimg/base:stable
-  #   working_directory: ~/project
-  #   steps:
-  #     - checkout
-  #     - add_ssh_keys:
-  #         fingerprints: ["5d:61:63:61:30:df:01:28:4a:25:aa:6f:58:1e:87:f1"]
-  #     - run: apk add --update tar gzip
-  #     - attach_workspace:
-  #         at: ~/project
-  #     - run: 
-  #         name: Run backend smoke tests
-  #         command: |
-  #           export BACKEND_IP=$(aws ec2 describe-instances --query "Reservations[*].Instances[*].PublicIpAddress" --filters "Name=tag:project, Values=udapeople" --output text)
-  #           export API_URL="http://${BACKEND_IP}:3030"
-  #           echo "${API_URL}"
-  #           if curl "${API_URL}/api/status" | grep "ok"
-  #           then∫
-  #               return 0
-  #           else
-  #               return 1
-  #           fi
-  #     - run: 
-  #         name: Run frontend smoke tests
-  #         command: |
-  #           URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-1.amazonaws.com/#/employees"            
-  #           echo ${URL} 
-  #           if curl -s ${URL} | grep "Welcome"
-  #           then
-  #             return 1
-  #           else
-  #             return 1
-  #           fi
+  smoke_test:
+    docker:
+      - image: cimg/base:stable
+    working_directory: ~/project
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints: ["5d:61:63:61:30:df:01:28:4a:25:aa:6f:58:1e:87:f1"]
+      - run: apk add --update tar gzip
+      - attach_workspace:
+          at: ~/project
+      - run: 
+          name: Run backend smoke tests
+          command: |
+            export BACKEND_IP=$(aws ec2 describe-instances --query "Reservations[*].Instances[*].PublicIpAddress" --filters "Name=tag:project, Values=udapeople" --output text)
+            export API_URL="http://${BACKEND_IP}:3030"
+            echo "${API_URL}"
+            if curl "${API_URL}/api/status" | grep "ok"
+            then∫
+                return 0
+            else
+                return 1
+            fi
+      - run: 
+          name: Run frontend smoke tests
+          command: |
+            URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-1.amazonaws.com/#/employees"            
+            echo ${URL} 
+            if curl -s ${URL} | grep "Welcome"
+            then
+              return 1
+            else
+              return 1
+            fi
+      - destroy_environment
+      - revert_migrations
 
 workflows:
   default:
