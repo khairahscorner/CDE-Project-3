@@ -459,8 +459,8 @@ jobs:
               echo "This is the new BE + FE infrastructure: workflowID --> ${CIRCLE_WORKFLOW_ID:0:7}"
             fi
       - notify_slack
-      - destroy_environment
-      - revert_migrations
+      # - destroy_environment
+      # - revert_migrations
 
 
 workflows:
@@ -495,8 +495,8 @@ workflows:
           requires: [deploy_frontend, deploy_backend]
       - cloudfront_update:
           requires: [smoke_tests]
-      - cleanup:
-          requires: [cloudfront_update]
+      # - cleanup:
+      #     requires: [cloudfront_update]
     
   # build:
   #   jobs:
