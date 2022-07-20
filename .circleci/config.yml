@@ -499,7 +499,8 @@ workflows:
           requires: [cloudfront_update]
     
   build:
-    when: << pipeline.parameters.GHA_Action >>
+    when:
+      equal: [ "push", << pipeline.parameters.GHA_Event >>]
     jobs:
       - build_frontend
       - build_backend
