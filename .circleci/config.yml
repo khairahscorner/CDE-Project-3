@@ -466,7 +466,7 @@ jobs:
 workflows:
   release:
     when:
-      equal: [ "release", << pipeline.parameters.GHA_Action >>]
+      equal: [ "published", << pipeline.parameters.GHA_Action >>]
     jobs:
       - build_frontend
       - build_backend
