@@ -423,7 +423,9 @@ jobs:
           no_output_timeout: 30m
           command: |
             OldWorkflowID=$(cat OldWorkflowID.txt)
-            aws cloudformation deploy --template-file .circleci/files/cloudfront.yml --stack-name cloudfrontStack --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" --tags project=udapeople
+            bucketRegion=$(aws s3api get-bucket-location --bucket udapeople-${OldWorkflowID} --output text)
+            aws cloudformation deploy --template-file .circleci/files/cloudfront.yml --stack-name cloudfrontStack --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" bucketRegion=${bucketRegion} --tags project=udapeople
+            echo "bucketRegion: ${bucketRegion}"
             echo "OldWorkflowID: ${OldWorkflowID}"
             echo "NewWorkflowID: ${CIRCLE_WORKFLOW_ID:0:7}"
       - persist_to_workspace:

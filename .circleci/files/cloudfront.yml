@@ -5,6 +5,10 @@ Parameters:
   WorkflowID:
     Description: Unique identifier.
     Type: String
+  bucketRegion:
+    Description: region for the bucket
+    Type: String
+    Default: us-east-1
 
 
 Resources:
@@ -20,7 +24,7 @@ Resources:
     Properties:
       DistributionConfig:
         Origins:
-          - DomainName: !Sub "udapeople-${WorkflowID}.s3-website-${AWS_DEFAULT_REGION}.amazonaws.com"
+          - DomainName: !Sub "udapeople-${WorkflowID}.s3-website-${bucketRegion}.amazonaws.com"
             Id: webpage
             S3OriginConfig:
               OriginAccessIdentity: !Sub "origin-access-identity/cloudfront/${CloudFrontOriginAccessIdentity}"
