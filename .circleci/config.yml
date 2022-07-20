@@ -424,6 +424,10 @@ jobs:
           command: |
             OldWorkflowID=$(cat OldWorkflowID.txt)
             bucketRegion=$(aws s3api get-bucket-location --bucket udapeople-${OldWorkflowID} --output text)
+            if [[ $bucketRegion == "None" ]]
+            then
+              bucketRegion="us-east-1"
+            fi 
             aws cloudformation deploy --template-file .circleci/files/cloudfront.yml --stack-name cloudfrontStack --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" bucketRegion=${bucketRegion} --tags project=udapeople
             echo "bucketRegion: ${bucketRegion}"
             echo "OldWorkflowID: ${OldWorkflowID}"
