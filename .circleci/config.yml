@@ -464,42 +464,9 @@ jobs:
 
 
 workflows:
-  when: << pipeline.parameters.GHA_Action >>
-    release:
-      when:
-        equal: [ "release", << pipeline.parameters.GHA_Event >>]
-        jobs:
-          - build_frontend
-          - build_backend
-          - test_frontend:
-              requires: [build_frontend]
-          - test_backend:
-              requires: [build_backend]
-          - audit_frontend:
-              requires: [build_frontend]
-          - audit_backend:
-              requires: [build_backend]
-          - deploy_infra:
-              requires: [test_backend, test_frontend, audit_backend, audit_frontend]
-              filters:
-                branches:
-                  only: [master]
-          - configure_infra:
-              requires: [deploy_infra]
-          - run_migrations:
-              requires: [configure_infra]
-          - deploy_frontend:
-              requires: [run_migrations]
-          - deploy_backend:
-              requires: [run_migrations]
-          - smoke_tests:
-              requires: [deploy_frontend, deploy_backend]
-          - cloudfront_update:
-              requires: [smoke_tests]
-          - cleanup:
-              requires: [cloudfront_update]
-    
-    build:
+  release:
+    when:
+      equal: [ "release", << pipeline.parameters.GHA_Event >>]
       jobs:
         - build_frontend
         - build_backend
@@ -511,3 +478,36 @@ workflows:
             requires: [build_frontend]
         - audit_backend:
             requires: [build_backend]
+        - deploy_infra:
+            requires: [test_backend, test_frontend, audit_backend, audit_frontend]
+            filters:
+              branches:
+                only: [master]
+        - configure_infra:
+            requires: [deploy_infra]
+        - run_migrations:
+            requires: [configure_infra]
+        - deploy_frontend:
+            requires: [run_migrations]
+        - deploy_backend:
+            requires: [run_migrations]
+        - smoke_tests:
+            requires: [deploy_frontend, deploy_backend]
+        - cloudfront_update:
+            requires: [smoke_tests]
+        - cleanup:
+            requires: [cloudfront_update]
+    
+  build:
+    when: << pipeline.parameters.GHA_Action >>
+    jobs:
+      - build_frontend
+      - build_backend
+      - test_frontend:
+          requires: [build_frontend]
+      - test_backend:
+          requires: [build_backend]
+      - audit_frontend:
+          requires: [build_frontend]
+      - audit_backend:
+          requires: [build_backend]
