@@ -465,8 +465,8 @@ jobs:
 
 workflows:
   release:
-    when:
-      equal: [ "published", << pipeline.parameters.GHA_Action >>]
+    # when:
+    #   equal: [ "published", << pipeline.parameters.GHA_Action >>]
     jobs:
       - build_frontend
       - build_backend
@@ -498,15 +498,15 @@ workflows:
       - cleanup:
           requires: [cloudfront_update]
     
-  build:
-    jobs:
-      - build_frontend
-      - build_backend
-      - test_frontend:
-          requires: [build_frontend]
-      - test_backend:
-          requires: [build_backend]
-      - audit_frontend:
-          requires: [build_frontend]
-      - audit_backend:
-          requires: [build_backend]
+  # build:
+  #   jobs:
+  #     - build_frontend
+  #     - build_backend
+  #     - test_frontend:
+  #         requires: [build_frontend]
+  #     - test_backend:
+  #         requires: [build_backend]
+  #     - audit_frontend:
+  #         requires: [build_frontend]
+  #     - audit_backend:
+  #         requires: [build_backend]
