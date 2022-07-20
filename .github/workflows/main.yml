@@ -1,0 +1,15 @@
+on:
+  release:
+    types: [published]
+
+name: Release to Prod.
+
+jobs:
+  trigger-circleci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger CircleCI workflow
+        id: circleciTrigger
+        uses: circleci/trigger_circleci_pipeline@v1.0
+        env:
+          CCI_TOKEN: $CCI_TOKEN
