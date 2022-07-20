@@ -40,8 +40,8 @@ commands:
     parameters:
       workflowID:
         type: string
-        # default: 3c70603
-        default: ${CIRCLE_WORKFLOW_ID:0:7}
+        default: f3bc2ad
+        # default: ${CIRCLE_WORKFLOW_ID:0:7}
     steps:
       - run:
           when: on_fail
@@ -175,11 +175,13 @@ jobs:
       - run:
           name: Ensure backend infrastructure exist
           command: |
-            aws cloudformation deploy --template-file .circleci/files/backend.yml --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7} --parameter-overrides ID=${CIRCLE_WORKFLOW_ID:0:7} --tags project=udapeople
+            # aws cloudformation deploy --template-file .circleci/files/backend.yml --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7} --parameter-overrides ID=${CIRCLE_WORKFLOW_ID:0:7} --tags project=udapeople
+            aws cloudformation deploy --template-file .circleci/files/backend.yml --stack-name udapeople-backend-f3bc2ad --parameter-overrides ID=f3bc2ad --tags project=udapeople
       - run:
           name: Ensure frontend infrastructure exist
           command: |
-            aws cloudformation deploy --template-file .circleci/files/frontend.yml --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7} --parameter-overrides ID=${CIRCLE_WORKFLOW_ID:0:7} --tags project=udapeople
+            # aws cloudformation deploy --template-file .circleci/files/frontend.yml --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7} --parameter-overrides ID=${CIRCLE_WORKFLOW_ID:0:7} --tags project=udapeople
+            aws cloudformation deploy --template-file .circleci/files/frontend.yml --stack-name udapeople-frontend-f3bc2ad --parameter-overrides ID=f3bc2ad --tags project=udapeople
       - run:
           name: Add the EC2 instance IP to the Ansible inventory
           command: |
@@ -190,7 +192,7 @@ jobs:
           paths:
             - .circleci/ansible/inventory.txt
       - notify_slack
-      - destroy_environment
+      # - destroy_environment
 
   configure_infra:
     docker:
@@ -252,8 +254,8 @@ jobs:
           command: |
             if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
             then
-              curl https://kvdb.io/7HMEcsZ9ZHEr8PGWX4LWko/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
-              # curl https://kvdb.io/7HMEcsZ9ZHEr8PGWX4LWko/migration_3c70603  -d '1'
+              # curl https://kvdb.io/7HMEcsZ9ZHEr8PGWX4LWko/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
+              curl https://kvdb.io/7HMEcsZ9ZHEr8PGWX4LWko/migration_f3bc2ad  -d '1'
             fi
       - persist_to_workspace:
           root:  ~/project
@@ -305,15 +307,15 @@ jobs:
             cd frontend
             npm install
             npm run build
-            # tar -czvf artifact-3c70603.tar.gz dist
-            # aws s3 cp dist s3://udapeople-3c70603 --recursive
-            tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
-            aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
+            tar -czvf artifact-f3bc2ad.tar.gz dist
+            aws s3 cp dist s3://udapeople-f3bc2ad --recursive
+            # tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
+            # aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
       - save_cache:
           paths: [frontend/node-modules]
           key: frontend-build
       - notify_slack
-      - destroy_environment
+      # - destroy_environment
       - revert_migrations
 
   deploy_backend:
@@ -351,7 +353,7 @@ jobs:
           key: backend-build
       - notify_slack 
       # - destroy_environment
-      # - revert_migrations
+      - revert_migrations
 
   smoke_tests:
     docker:
@@ -381,8 +383,8 @@ jobs:
       - run: 
           name: Run frontend smoke tests
           command: |
-            URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-1.amazonaws.com/#/employees"            
-            # URL="http://udapeople-3c70603.s3-website-us-east-1.amazonaws.com/#/employees"            
+            # URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-1.amazonaws.com/#/employees"            
+            URL="http://udapeople-f3bc2ad.s3-website-us-east-1.amazonaws.com/#/employees"            
             echo ${URL} 
             if curl -s ${URL} | grep "Welcome"
             then
@@ -391,7 +393,7 @@ jobs:
               exit 1
             fi
       - notify_slack
-      - destroy_environment
+      # - destroy_environment
       - revert_migrations
 
   cloudfront_update:
@@ -408,6 +410,7 @@ jobs:
             cat ~/OLD_ID.txt
       - run:
           name: Execute CloudFront template
+          no_output_timeout: 30m
           command: |
             aws cloudformation deploy --template-file .circleci/files/cloudfront.yml --stack-name cloudfrontStack --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" --tags project=udapeople
             echo "OldWorkflowID: ${OLD_ID}"
@@ -416,26 +419,26 @@ jobs:
 workflows:
   default:
     jobs:
-      # - build_frontend
-      # - build_backend
-      # - test_frontend:
-      #     requires: [build_frontend]
-      # - test_backend:
-      #     requires: [build_backend]
-      # - audit_frontend:
-      #     requires: [build_frontend]
-      # - audit_backend:
-      #     requires: [build_backend]
-      # - deploy_infra:
-      #     requires: [test_backend, test_frontend, audit_backend, audit_frontend]
-      # - configure_infra:
-      #     requires: [deploy_infra]
-      # - run_migrations:
-      #     requires: [configure_infra]
-      # - deploy_frontend:
-      #     requires: [run_migrations]
-      # - deploy_backend:
-      #     requires: [run_migrations]
-      # - smoke_tests:
-      #     requires: [deploy_frontend, deploy_backend]
-      - cloudfront_update
+      - build_frontend
+      - build_backend
+      - test_frontend:
+          requires: [build_frontend]
+      - test_backend:
+          requires: [build_backend]
+      - audit_frontend:
+          requires: [build_frontend]
+      - audit_backend:
+          requires: [build_backend]
+      - deploy_infra:
+          requires: [test_backend, test_frontend, audit_backend, audit_frontend]
+      - configure_infra:
+          requires: [deploy_infra]
+      - run_migrations:
+          requires: [configure_infra]
+      - deploy_frontend:
+          requires: [run_migrations]
+      - deploy_backend:
+          requires: [run_migrations]
+      - smoke_tests:
+          requires: [deploy_frontend, deploy_backend]
+      # - cloudfront_update
