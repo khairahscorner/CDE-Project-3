@@ -495,8 +495,8 @@ workflows:
           requires: [deploy_frontend, deploy_backend]
       - cloudfront_update:
           requires: [smoke_tests]
-      # - cleanup:
-      #     requires: [cloudfront_update]
+      - cleanup:
+          requires: [cloudfront_update]
     
   # build:
   #   jobs:
