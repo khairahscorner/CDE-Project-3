@@ -4,6 +4,7 @@
 *.tmp
 *.pem
 *.tmp.*
+DB_details.txt
 log.txt
 *.sublime-project
 *.sublime-workspace

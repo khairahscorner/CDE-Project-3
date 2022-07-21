@@ -1,2 +1,0 @@
-URL01= https://github.com/khairahscorner/UdapeopleProject
-URL02= http://udapeople-01dd2a8.s3-website-us-east-1.amazonaws.com
